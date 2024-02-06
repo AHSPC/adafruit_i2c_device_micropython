@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 # PORTED TO MICROPYTHON on 6.Feb.2024 by blobbybilb & BvngeeCord for Albany High School's Electronics Workshop class
-# (Unfortunately must include additional buffer allocations to replace CircuitPython changes <- comment by BvngeeCord)
+# (Unfortunately includes additional buffer allocations to replace CircuitPython changes)
 
 """
 `adafruit_bus_device.i2c_device` - I2C Bus Device
