@@ -11,11 +11,6 @@ try:
 except ImportError:
     pass
 
-
-__version__ = "0.0.0+auto.0"
-__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BusDevice.git"
-
-
 class I2CDevice:
     """
     Represents a single I2C device, and provides a layer over default MicroPython libs compatible with `adafruit_bus_device.i2c_device`.
@@ -28,9 +23,7 @@ class I2CDevice:
     def __init__(self, i2c: I2C, device_address: int, probe: bool = True) -> None:
         self.i2c = i2c
         self.device_address = device_address
-
-        if probe:
-            self.__probe_for_device()
+        if probe: self.__probe_for_device()
 
     def readinto(
         self, buf, *, start: int = 0, end: Optional[int] = None
@@ -62,11 +55,7 @@ class I2CDevice:
         """
         end = len(buf) if end == None else end
         self.i2c.writeto(self.device_address, buf[start:end])
-    
-    # def write_end(self, buf, *, end: int) -> None:
-        
-
-    # pylint: disable-msg=too-many-arguments
+            
     def write_then_readinto(
         self,
         out_buffer,
@@ -114,11 +103,7 @@ class I2CDevice:
             in_end=in_end,
         )
 
-    # pylint: enable-msg=too-many-arguments
-
-    def __enter__(self) -> "I2CDevice":
-        # while not self.i2c.try_lock():
-        #     time.sleep(0)
+    def __enter__(self) -> I2CDevice:
         return self
 
     def __exit__(
@@ -127,7 +112,6 @@ class I2CDevice:
         exc_val: Optional[BaseException],
         exc_tb: Optional[TracebackType],
     ) -> bool:
-        # self.i2c.unlock()
         return False
 
     def __probe_for_device(self) -> None:
@@ -136,19 +120,14 @@ class I2CDevice:
         if you get an OSError it means the device is not there
         or that the device does not support these means of probing
         """
-        # while not self.i2c.try_lock():
-        #     time.sleep(0)
         try:
             self.i2c.writeto(self.device_address, b"")
         except OSError:
             # some OS's dont like writing an empty bytesting...
             # Retry by reading a byte
             try:
-                result = bytearray(1)
-                self.i2c.readfrom_into(self.device_address, result)
+                self.i2c.readfrom_into(self.device_address, bytearray(1))
             except OSError:
                 # pylint: disable=raise-missing-from
                 raise ValueError("No I2C device at address: 0x%x" % self.device_address)
                 # pylint: enable=raise-missing-from
-        # finally:
-        #     self.i2c.unlock()
