@@ -1,25 +1,13 @@
-# SPDX-FileCopyrightText: 2016 Scott Shawcroft for Adafruit Industries
-#
-# SPDX-License-Identifier: MIT
-
-# PORTED TO MICROPYTHON on 6.Feb.2024 by blobbybilb & BvngeeCord for Albany High School's Electronics Workshop class
-# (Unfortunately includes additional buffer allocations to replace CircuitPython changes)
-
-"""
-`adafruit_bus_device.i2c_device` - I2C Bus Device
-====================================================
-"""
+# Original © 2016 Scott Shawcroft for Adafruit Industries, MIT License
+# Ported to MicroPython on 6.Feb.2024 by blobbybilb & BvngeeCord for Albany High School's Electronics Workshop class
+# (Unfortunately includes additional buffer allocations to replace CircuitPython C library calls)
 
 import time
 from machine import I2C
 
 try:
     from typing import Optional, Type
-    from types import TracebackType
-
-
-    # Used only for type annotations.
-    
+    from types import TracebackType    
 except ImportError:
     pass
 
@@ -30,32 +18,11 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BusDevice.git"
 
 class I2CDevice:
     """
-    Represents a single I2C device and manages locking the bus and the device
-    address.
-
-    :param ~busio.I2C i2c: The I2C bus the device is on
+    Represents a single I2C device, and provides a layer over default MicroPython libs compatible with `adafruit_bus_device.i2c_device`.
+    
+    :param ~busio.I2C i2c: machine.I2C object for the device
     :param int device_address: The 7 bit device address
     :param bool probe: Probe for the device upon object creation, default is true
-
-    .. note:: This class is **NOT** built into CircuitPython. See
-      :ref:`here for install instructions <bus_device_installation>`.
-
-    Example:
-
-    .. code-block:: python
-
-        import busio
-        from board import *
-        from adafruit_bus_device.i2c_device import I2CDevice
-
-        with busio.I2C(SCL, SDA) as i2c:
-            device = I2CDevice(i2c, 0x70)
-            bytes_read = bytearray(4)
-            with device:
-                device.readinto(bytes_read)
-            # A second transaction
-            with device:
-                device.write(bytes_read)
     """
 
     def __init__(self, i2c: I2C, device_address: int, probe: bool = True) -> None:
@@ -69,47 +36,31 @@ class I2CDevice:
         self, buf, *, start: int = 0, end: Optional[int] = None
     ) -> None:
         """
-        Read into ``buf`` from the device. The number of bytes read will be the
-        length of ``buf``.
-
-        If ``start`` or ``end`` is provided, then the buffer will be sliced
-        as if ``buf[start:end]``. This will not cause an allocation like
-        ``buf[start:end]`` will so it saves memory.
-
-        :param ~WriteableBuffer buffer: buffer to write into
+        Read into `buf` from the device. The number of bytes read will be the
+        length of `buf`.
+        
+        :param buffer: buffer to write into
         :param int start: Index to start writing at
-        :param int end: Index to write up to but not include; if None, use ``len(buf)``
+        :param int end: Index to write up to but not include; `len(buf)` by default
         """
-        if end is None:
-            end = len(buf)
-            
+
+        end = len(buf) if end == None else end
         x = buf[start:end] # not magic, this is to modify buf rather than make a copy and read into copy
         self.i2c.readfrom_into(self.device_address, x)
         buf[start:end] = x
-    
-    # def readinto_end(self, buf, *, end: int) -> None:
-    #     self.i2c.write(
-    #         self.i2c.readfrom(self.device_address, end)
-    #     )
 
     def write(
         self, buf, *, start: int = 0, end: Optional[int] = None
     ) -> None:
         """
-        Write the bytes from ``buffer`` to the device, then transmit a stop
+        Write the bytes from ``buf` to the device, then transmit a stop
         bit.
 
-        If ``start`` or ``end`` is provided, then the buffer will be sliced
-        as if ``buffer[start:end]``. This will not cause an allocation like
-        ``buffer[start:end]`` will so it saves memory.
-
-        :param ~ReadableBuffer buffer: buffer containing the bytes to write
+        :param buff: buffer containing the bytes to write
         :param int start: Index to start writing from
-        :param int end: Index to read up to but not include; if None, use ``len(buf)``
+        :param int end: Index to read up to but not include; `len(buf)` by default
         """
-        if end is None:
-            end = len(buf)
-        # self.i2c.writeto(self.device_address, buf, start=start, end=end)
+        end = len(buf) if end == None else end
         self.i2c.writeto(self.device_address, buf[start:end])
     
     # def write_end(self, buf, *, end: int) -> None:
