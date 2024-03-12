@@ -93,24 +93,18 @@ class I2CDevice:
         if in_end is None:
             in_end = len(in_buffer)
 
-        self.i2c.writeto_then_readfrom(
-            self.device_address,
-            out_buffer,
-            in_buffer,
-            out_start=out_start,
-            out_end=out_end,
-            in_start=in_start,
-            in_end=in_end,
-        )
+        self.write(out_buffer, start=out_start, end=out_end)
+        self.readinto(in_buffer, start=in_start, end=in_end)
 
-    def __enter__(self) -> I2CDevice:
+    # def __enter__(self) -> I2CDevice:
+    def __enter__(self):
         return self
 
     def __exit__(
         self,
         exc_type: Optional[Type[type]],
         exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
+        exc_tb: Optional[TracebackType], #type:ignore
     ) -> bool:
         return False
 
