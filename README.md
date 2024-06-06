@@ -1,4 +1,4 @@
-# adafruit_i2c_device_micropython_port
+# adafruit_i2c_device_micropython
 
 ### Modifications:
 
